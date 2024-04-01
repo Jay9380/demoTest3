@@ -28,24 +28,33 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 //해당 부분 부터 입력
-def webappDir = "$projectDir/src/main/reactjs"
+def frontDir = "$projectDir/src/main/front"
 
 sourceSets {
 	main {
-		resources {
-			srcDirs = ["$webappDir/build", "$projectDir/src/main/resources"]
+		resources { srcDirs = ["$projectDir/src/main/resources"]
 		}
 	}
 }
 
-processResources {
-	dependsOn "buildReact"
+processResources { dependsOn "copyReactBuildFiles" }
+
+task installReact(type: Exec) {
+	workingDir "$frontDir"
+	inputs.dir "$frontDir"
+	group = BasePlugin.BUILD_GROUP
+	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+		commandLine "npm.cmd", "audit", "fix"
+		commandLine 'npm.cmd', 'install' }
+	else {
+		commandLine "npm", "audit", "fix" commandLine 'npm', 'install'
+	}
 }
 
 task buildReact(type: Exec) {
 	dependsOn "installReact"
-	workingDir "$webappDir"
-	inputs.dir "$webappDir"
+	workingDir "$frontDir"
+	inputs.dir "$frontDir"
 	group = BasePlugin.BUILD_GROUP
 	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
 		commandLine "npm.cmd", "run-script", "build"
@@ -54,17 +63,10 @@ task buildReact(type: Exec) {
 	}
 }
 
-task installReact(type: Exec) {
-	workingDir "$webappDir"
-	inputs.dir "$webappDir"
-	group = BasePlugin.BUILD_GROUP
-	if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-		commandLine "npm.cmd", "audit", "fix"
-		commandLine 'npm.cmd', 'install'
-	} else {
-		commandLine "npm", "audit", "fix"
-		commandLine 'npm', 'install'
-	}
+task copyReactBuildFiles(type: Copy) {
+	dependsOn "buildReact"
+	from "$frontDir/build"
+	into "$projectDir/src/main/resources/static"
 }
 //까지 입력
 tasks.named('test') {

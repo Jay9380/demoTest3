@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 public class HomeController {
-    @GetMapping("hello")
+    @GetMapping("/api/data")
     public String test(){
         return "Hello, world";
     }
