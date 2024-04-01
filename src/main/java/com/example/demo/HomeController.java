@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 public class HomeController {
     @GetMapping("hello")
-    public List<String> hello(){
-        return Arrays.asList("안녕tt하세ddtest!!");
+    public String test(){
+        return "Hello, world";
     }
 }
